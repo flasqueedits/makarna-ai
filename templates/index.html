@@ -11,336 +11,145 @@
 <body>
     <!-- Giris Ekrani -->
     <div id="giris-ekrani" class="giris-ekrani">
-        <div class="giris-particles" id="giris-particles"></div>
         <div class="giris-kutu">
-            <div class="giris-logo" id="giris-logo">🍝</div>
+            <div class="giris-logo">🍝</div>
             <h1 class="giris-baslik">Makarna AI</h1>
-            <p class="giris-aciklama">Krema'nin sahte yapay zekasi ile tanismaya hazir misin?</p>
-            <input type="text" id="kullanici-adi" class="giris-input" placeholder="Kullanici adin ne, evladi?" maxlength="20" autofocus>
-            <button id="giris-btn" class="giris-btn">Makarna Zekasina Gir 🍝</button>
-            <div class="giris-uyari">Uyari: Yapay zeka degildir. Makarna zekasidir. Fark edeceksin.</div>
+            <p class="giris-aciklama">Krema'nin sahte yapay zekasi</p>
+            <input type="text" id="kullanici-adi" class="giris-input" placeholder="Adin ne?" maxlength="20">
+            <button id="giris-btn" class="giris-btn">Gir 🍝</button>
         </div>
     </div>
 
-    <!-- Ana Chat Ekrani -->
+    <!-- Chat Ekrani -->
     <div id="chat-ekrani" class="chat-ekrani" style="display:none;">
-        <!-- Sol Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-baslik">
-                <span class="sidebar-logo">🍝</span>
-                <span class="sidebar-text">Makarna AI</span>
-                <button id="sidebar-kapat" class="sidebar-kapat-btn">✕</button>
+                <span>🍝</span>
+                <span>Makarna AI</span>
             </div>
-            <button id="yeni-sohbet-btn" class="yeni-sohbet-btn">
-                <span>+</span> <span class="sidebar-text">Yeni Sohbet</span>
-            </button>
+            <button id="yeni-sohbet-btn" class="yeni-sohbet-btn">+ Yeni Sohbet</button>
             <div id="sohbet-listesi" class="sohbet-listesi"></div>
             <div class="sidebar-alt">
-                <div class="kullanici-bilgisi">
-                    <span id="kullanici-avatar" class="avatar">👤</span>
-                    <span id="kullanici-goster" class="sidebar-text">Misafir</span>
-                </div>
-                <button id="tema-degistir-btn" class="tema-btn" title="Tema Degistir">🌙</button>
+                <span id="kullanici-avatar" class="avatar">👤</span>
+                <span id="kullanici-goster">Misafir</span>
             </div>
         </div>
 
-        <!-- Sag Chat Alani -->
         <div class="chat-alani">
             <div class="chat-baslik">
-                <button id="sidebar-ac-btn" class="sidebar-ac-btn">☰</button>
-                <span id="chat-baslik-metin">Yeni bir sohbet baslat</span>
-                <div class="chat-baslik-sag">
-                    <span id="chat-durum" class="chat-durum">🟢 Cevrimici</span>
-                    <span id="online-sayisi" class="online-sayisi">1 kisi</span>
-                </div>
+                <span id="chat-baslik-metin">Sohbet Sec</span>
+                <span id="chat-durum">🟢</span>
             </div>
 
             <div id="mesaj-alani" class="mesaj-alani">
                 <div class="hosgeldin-mesaji">
-                    <div class="hosgeldin-emoji" id="hosgeldin-emoji">🍝</div>
+                    <div class="hosgeldin-emoji">🍝</div>
                     <h2>Hos geldin!</h2>
-                    <p>Makarna AI'ya hos geldin. Burada Krema'nin sahte yapay zekasiyla sohbet edebilirsin.</p>
-                    <p class="uyari-kutucuk">Bu gercek bir yapay zeka degildir. Makarna haslama zekasidir.</p>
-                    <div class="hosgeldin-ipuclari">
-                        <div class="ipucu">💬 Bir seyler yaz</div>
-                        <div class="ipucu">🎭 Emoji ekle</div>
-                        <div class="ipucu">🎵 Sohbet et</div>
-                    </div>
+                    <p>Sol taraftan yeni sohbet baslat</p>
                 </div>
-            </div>
-
-            <div id="typing-gosterge" class="typing-gosterge" style="display:none;">
-                <span class="typing-nokta"></span>
-                <span class="typing-nokta"></span>
-                <span class="typing-nokta"></span>
-                <span class="typing-yazi">Makarna AI yaziyor...</span>
             </div>
 
             <div id="mesaj-giris" class="mesaj-giris" style="display:none;">
                 <div class="mesaj-input-kutu">
-                    <button id="emoji-btn" class="emoji-btn" title="Emoji Ekle">😊</button>
                     <input type="text" id="mesaj-input" class="mesaj-input" placeholder="Bir sey yaz..." maxlength="500">
                     <button id="gonder-btn" class="gonder-btn">Gonder</button>
-                </div>
-                <!-- Emoji Paneli -->
-                <div id="emoji-panel" class="emoji-panel" style="display:none;">
-                    <div class="emoji-kategorileri">
-                        <button class="emoji-kategori aktif" data-kategori="makarna">🍝</button>
-                        <button class="emoji-kategori" data-kategori="duygu">😊</button>
-                        <button class="emoji-kategori" data-kategori="yemek">🍕</button>
-                        <button class="emoji-kategori" data-kategori="hava">☀️</button>
-                        <button class="emoji-kategori" data-kategori="kalp">❤️</button>
-                        <button class="emoji-kategori" data-kategori="el">👋</button>
-                    </div>
-                    <div id="emoji-listesi" class="emoji-listesi"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Ses Efektleri (gizli) -->
-    <audio id="ses-bildirim" preload="auto"></audio>
-    <audio id="ses-mesaj" preload="auto"></audio>
-
     <script>
-        // ============================================================
-        // SocketIO
-        // ============================================================
         var socket = io();
-
-        // ============================================================
-        // Durum
-        // ============================================================
         var kullaniciAdi = '';
         var aktifOda = null;
         var sohbetler = {};
-        var tema = localStorage.getItem('makarna-tema') || 'karanlik';
-        var sesAcik = localStorage.getItem('makarna-ses') !== 'false';
 
-        // ============================================================
-        // DOM
-        // ============================================================
-        var girisEkrani = document.getElementById('giris-ekrani');
-        var chatEkrani = document.getElementById('chat-ekrani');
-        var kullaniciAdiInput = document.getElementById('kullanici-adi');
-        var girisBtn = document.getElementById('giris-btn');
-        var yeniSohbetBtn = document.getElementById('yeni-sohbet-btn');
-        var sohbetListesi = document.getElementById('sohbet-listesi');
-        var mesajAlani = document.getElementById('mesaj-alani');
-        var mesajGiris = document.getElementById('mesaj-giris');
-        var mesajInput = document.getElementById('mesaj-input');
-        var gonderBtn = document.getElementById('gonder-btn');
-        var chatBaslikMetin = document.getElementById('chat-baslik-metin');
-        var kullaniciGoster = document.getElementById('kullanici-goster');
-        var kullaniciAvatar = document.getElementById('kullanici-avatar');
-        var emojiBtn = document.getElementById('emoji-btn');
-        var emojiPanel = document.getElementById('emoji-panel');
-        var emojiListesi = document.getElementById('emoji-listesi');
-        var typingGosterge = document.getElementById('typing-gosterge');
-        var sidebar = document.getElementById('sidebar');
-        var sidebarAcBtn = document.getElementById('sidebar-ac-btn');
-        var sidebarKapatBtn = document.getElementById('sidebar-kapat');
-        var temaDegistirBtn = document.getElementById('tema-degistir-btn');
-        var onlineSayisi = document.getElementById('online-sayisi');
-
-        // ============================================================
-        // Emoji Verileri
-        // ============================================================
-        var emojiVerileri = {
-            makarna: ["🍝", "🍜", "🥡", "🍴", "🔪"],
-            duygu: ["😊", "😂", "🤣", "😍", "🥰", "😎", "🤩", "😏", "🫠", "💀", "🤡", "👻", "🥺", "😤", "🤔", "😴"],
-            yemek: ["🍕", "🧀", "🍞", "🥖", "🥯", "🧈", "🫕", "🥘", "🍲", "🥗", "🍔", "🍟", "🌮", "🌯"],
-            hava: ["☀️", "🌤️", "⛅", "🌥️", "☁️", "🌧️", "⛈️", "🌈", "❄️", "🌊", "🔥", "⚡"],
-            kalp: ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "💕", "💖", "💗", "💘"],
-            el: ["👋", "🤚", "🖐️", "✋", "🖖", "👌", "🤌", "👍", "👎", "👊", "🤝", "🙏"]
-        };
-
-        // ============================================================
-        // Tema
-        // ============================================================
-        function temayiUygula() {
-            document.body.setAttribute('data-tema', tema);
-            temaDegistirBtn.textContent = tema === 'karanlik' ? '☀️' : '🌙';
-            localStorage.setItem('makarna-tema', tema);
-        }
-        temayiUygula();
-
-        temaDegistirBtn.addEventListener('click', function() {
-            tema = tema === 'karanlik' ? 'aydinlik' : 'karanlik';
-            temayiUygula();
-        });
-
-        // ============================================================
-        // Giris Animasyonu
-        // ============================================================
-        function girisAnimasyonu() {
-            var logo = document.getElementById('giris-logo');
-            var acilis = 0;
-            setInterval(function() {
-                acilis += 5;
-                logo.style.transform = 'rotate(' + acilis + 'deg)';
-            }, 50);
-        }
-        girisAnimasyonu();
-
-        // ============================================================
         // Giris
-        // ============================================================
-        girisBtn.addEventListener('click', girisYap);
-        kullaniciAdiInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') girisYap();
-        });
-
-        function girisYap() {
-            kullaniciAdi = kullaniciAdiInput.value.trim();
+        document.getElementById('giris-btn').onclick = function() {
+            var input = document.getElementById('kullanici-adi');
+            kullaniciAdi = input.value.trim();
             if (!kullaniciAdi) {
-                kullaniciAdiInput.style.borderColor = '#ff4757';
-                kullaniciAdiInput.placeholder = 'Bir isim gir be kardesim!';
+                input.style.borderColor = 'red';
                 return;
             }
-            girisEkrani.classList.add('fade-out');
-            setTimeout(function() {
-                girisEkrani.style.display = 'none';
-                chatEkrani.style.display = 'flex';
-                chatEkrani.classList.add('fade-in');
-                kullaniciGoster.textContent = kullaniciAdi;
-                kullaniciAvatar.textContent = kullaniciAdi.charAt(0).toUpperCase();
-                yeniSohbet();
-            }, 500);
-        }
+            document.getElementById('giris-ekrani').style.display = 'none';
+            document.getElementById('chat-ekrani').style.display = 'flex';
+            document.getElementById('kullanici-goster').textContent = kullaniciAdi;
+            document.getElementById('kullanici-avatar').textContent = kullaniciAdi.charAt(0).toUpperCase();
+            yeniSohbet();
+        };
 
-        // ============================================================
-        // Sidebar Toggle (Mobil)
-        // ============================================================
-        sidebarAcBtn.addEventListener('click', function() {
-            sidebar.classList.add('acik');
-        });
-        sidebarKapatBtn.addEventListener('click', function() {
-            sidebar.classList.remove('acik');
-        });
+        document.getElementById('kullanici-adi').onkeypress = function(e) {
+            if (e.key === 'Enter') document.getElementById('giris-btn').click();
+        };
 
-        // ============================================================
         // Yeni Sohbet
-        // ============================================================
-        yeniSohbetBtn.addEventListener('click', yeniSohbet);
+        document.getElementById('yeni-sohbet-btn').onclick = function() {
+            yeniSohbet();
+        };
 
         function yeniSohbet() {
+            console.log('Yeni sohbet isteniyor...');
             socket.emit('yeni_sohbet', { kullanici: kullaniciAdi });
         }
 
         socket.on('sohbet_olusturuldu', function(data) {
+            console.log('Sohbet olusturuldu:', data);
             var room_id = data.room_id;
 
             sohbetler[room_id] = {
                 adi: 'Sohbet ' + (Object.keys(sohbetler).length + 1),
-                mesajlar: [],
-                renk: data.renk
+                mesajlar: []
             };
 
-            sohbetListesi.innerHTML = '';
+            // Listeyi guncelle
+            var liste = document.getElementById('sohbet-listesi');
+            liste.innerHTML = '';
             var keys = Object.keys(sohbetler);
             for (var i = 0; i < keys.length; i++) {
                 var rid = keys[i];
-                var sohbet = sohbetler[rid];
                 var div = document.createElement('div');
                 div.className = 'sohbet-item' + (rid === room_id ? ' aktif' : '');
                 div.setAttribute('data-room-id', rid);
-                div.innerHTML = '<span class="sohbet-emoji">💬</span><span class="sohbet-adi">' + sohbet.adi + '</span>';
-                div.addEventListener('click', (function(id) {
+                div.textContent = sohbetler[rid].adi;
+                div.onclick = (function(id) {
                     return function() { odaSec(id); };
-                })(rid));
-                sohbetListesi.appendChild(div);
+                })(rid);
+                liste.appendChild(div);
             }
 
             odaSec(room_id);
-            sidebar.classList.remove('acik');
         });
 
         function odaSec(room_id) {
             aktifOda = room_id;
             var sohbet = sohbetler[room_id];
 
-            var items = document.querySelectorAll('.sohbet-item');
-            for (var i = 0; i < items.length; i++) {
-                if (items[i].getAttribute('data-room-id') === room_id) {
-                    items[i].classList.add('aktif');
-                } else {
-                    items[i].classList.remove('aktif');
-                }
-            }
+            document.getElementById('chat-baslik-metin').textContent = sohbet ? sohbet.adi : 'Sohbet';
+            document.getElementById('mesaj-alani').innerHTML = '';
+            document.getElementById('mesaj-giris').style.display = 'block';
 
-            chatBaslikMetin.textContent = sohbet ? sohbet.adi : 'Sohbet';
-            mesajAlani.innerHTML = '';
-
-            if (sohbet && sohbet.mesajlar.length > 0) {
+            if (sohbet.mesajlar.length > 0) {
                 for (var j = 0; j < sohbet.mesajlar.length; j++) {
                     mesajEkle(sohbet.mesajlar[j], false);
                 }
-            } else {
-                mesajAlani.innerHTML = '<div class="hosgeldin-mesaji"><div class="hosgeldin-emoji">🍝</div><h2>Hos geldin!</h2><p>Makarna AI ile sohbete basla.</p></div>';
             }
 
-            mesajGiris.style.display = 'block';
-            mesajInput.focus();
+            document.getElementById('mesaj-input').focus();
         }
 
-        // ============================================================
-        // Emoji Paneli
-        // ============================================================
-        var aktifEmojiKategori = 'makarna';
-
-        emojiBtn.addEventListener('click', function() {
-            emojiPanel.style.display = emojiPanel.style.display === 'none' ? 'block' : 'none';
-            emojiListesiYukle(aktifEmojiKategori);
-        });
-
-        function emojiListesiYukle(kategori) {
-            aktifEmojiKategori = kategori;
-            var emojiler = emojiVerileri[kategori] || [];
-            emojiListesi.innerHTML = '';
-            for (var i = 0; i < emojiler.length; i++) {
-                var span = document.createElement('span');
-                span.className = 'emoji-item';
-                span.textContent = emojiler[i];
-                span.addEventListener('click', (function(emoji) {
-                    return function() {
-                        mesajInput.value += emoji;
-                        mesajInput.focus();
-                    };
-                })(emojiler[i]));
-                emojiListesi.appendChild(span);
-            }
-
-            var kategoriBtnlari = document.querySelectorAll('.emoji-kategori');
-            for (var j = 0; j < kategoriBtnlari.length; j++) {
-                if (kategoriBtnlari[j].getAttribute('data-kategori') === kategori) {
-                    kategoriBtnlari[j].classList.add('aktif');
-                } else {
-                    kategoriBtnlari[j].classList.remove('aktif');
-                }
-            }
-        }
-
-        var kategoriBtnlari = document.querySelectorAll('.emoji-kategori');
-        for (var k = 0; k < kategoriBtnlari.length; k++) {
-            kategoriBtnlari[k].addEventListener('click', function() {
-                emojiListesiYukle(this.getAttribute('data-kategori'));
-            });
-        }
-
-        emojiListesiYukle('makarna');
-
-        // ============================================================
         // Mesaj Gonder
-        // ============================================================
-        gonderBtn.addEventListener('click', mesajGonder);
-        mesajInput.addEventListener('keypress', function(e) {
+        document.getElementById('gonder-btn').onclick = function() {
+            mesajGonder();
+        };
+
+        document.getElementById('mesaj-input').onkeypress = function(e) {
             if (e.key === 'Enter') mesajGonder();
-            else socket.emit('typing_gonder', { room_id: aktifOda, kullanici: kullaniciAdi });
-        });
+        };
 
         function mesajGonder() {
-            var mesaj = mesajInput.value.trim();
+            var input = document.getElementById('mesaj-input');
+            var mesaj = input.value.trim();
             if (!mesaj || !aktifOda) return;
 
             socket.emit('kullanici_mesaj', {
@@ -349,145 +158,58 @@
                 mesaj: mesaj
             });
 
-            mesajInput.value = '';
-            emojiPanel.style.display = 'none';
+            input.value = '';
         }
 
-        // ============================================================
         // Mesaj Geldi
-        // ============================================================
         socket.on('mesaj_geldi', function(data) {
+            console.log('Mesaj geldi:', data);
             if (aktifOda && sohbetler[aktifOda]) {
                 sohbetler[aktifOda].mesajlar.push(data);
             }
             mesajEkle(data, true);
-
-            // Bildirim sesi
-            if (data.gonderen === 'makarna_ai' && sesAcik) {
-                oynatSes('mesaj');
-            }
         });
 
         function mesajEkle(data, scroll) {
-            var hosgeldin = mesajAlani.querySelector('.hosgeldin-mesaji');
+            var alan = document.getElementById('mesaj-alani');
+
+            // Hosgeldin mesajini kaldir
+            var hosgeldin = alan.querySelector('.hosgeldin-mesaji');
             if (hosgeldin) hosgeldin.remove();
 
             var div = document.createElement('div');
-            var benimMesajim = data.gonderen === 'kullanici';
+            var benim = data.gonderen === 'kullanici';
+            div.className = 'mesaj ' + (benim ? 'benim' : 'bot');
 
-            div.className = 'mesaj ' + (benimMesajim ? 'benim' : 'bot');
-            if (data.global_mesaj) div.className += ' global-mesaj';
+            var avatar = benim ? kullaniciAdi.charAt(0).toUpperCase() : '🍝';
 
-            var avatarIkon = benimMesajim
-                ? kullaniciAdi.charAt(0).toUpperCase()
-                : '🍝';
-
-            var renk = data.renk || (benimMesajim ? '#f5a623' : '#e74c3c');
-
-            div.innerHTML = '<div class="mesaj-avatar" style="background:' + renk + '">' + avatarIkon + '</div>' +
+            div.innerHTML = '<div class="mesaj-avatar">' + avatar + '</div>' +
                 '<div class="mesaj-icerik">' +
                 '<div class="mesaj-baslik">' +
-                '<span class="mesaj-sahip" style="color:' + renk + '">' + data.kullanici + '</span>' +
+                '<span class="mesaj-sahip">' + data.kullanici + '</span>' +
                 '<span class="mesaj-saat">' + data.saat + '</span>' +
                 '</div>' +
-                '<div class="mesaj-metin">' + escapeHtml(data.mesaj) + '</div>' +
+                '<div class="mesaj-metin">' + data.mesaj + '</div>' +
                 '</div>';
 
-            mesajAlani.appendChild(div);
+            alan.appendChild(div);
 
             if (scroll !== false) {
-                mesajAlani.scrollTop = mesajAlani.scrollHeight;
+                alan.scrollTop = alan.scrollHeight;
             }
         }
 
-        function escapeHtml(str) {
-            var div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        // ============================================================
-        // Typing Indicator
-        // ============================================================
-        socket.on('typing_basla', function(data) {
-            if (data.room_id === aktifOda) {
-                typingGosterge.style.display = 'flex';
-                typingGosterge.querySelector('.typing-yazi').textContent = data.kullanici + ' yaziyor...';
-            }
-        });
-
-        socket.on('typing_bitir', function(data) {
-            typingGosterge.style.display = 'none';
-        });
-
-        // ============================================================
-        // Online Kullanici
-        // ============================================================
-        socket.on('online_guncelle', function(data) {
-            onlineSayisi.textContent = data.sayi + ' kisi';
-        });
-
-        // ============================================================
-        // Ses
-        // ============================================================
-        function oynatSes(tur) {
-            // Web Audio API ile basit bildirim sesi
-            try {
-                var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                var oscillator = audioCtx.createOscillator();
-                var gainNode = audioCtx.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-
-                if (tur === 'mesaj') {
-                    oscillator.frequency.value = 800;
-                    oscillator.type = 'sine';
-                    gainNode.gain.value = 0.05;
-                    oscillator.start();
-                    setTimeout(function() { oscillator.stop(); }, 100);
-                } else if (tur === 'bildirim') {
-                    oscillator.frequency.value = 600;
-                    oscillator.type = 'triangle';
-                    gainNode.gain.value = 0.08;
-                    oscillator.start();
-                    setTimeout(function() {
-                        oscillator.frequency.value = 900;
-                    }, 100);
-                    setTimeout(function() { oscillator.stop(); }, 200);
-                }
-            } catch(e) {}
-        }
-
-        // ============================================================
         // Baglanti
-        // ============================================================
         socket.on('connect', function() {
-            console.log('Makarna AI baglandi!');
-            document.getElementById('chat-durum').textContent = '🟢 Cevrimici';
+            console.log('Baglandi!');
         });
 
         socket.on('disconnect', function() {
-            console.log('Baglanti kesildi!');
-            document.getElementById('chat-durum').textContent = '🔴 Baglanti kesildi';
+            console.log('Kesildi!');
         });
 
-        socket.on('kullanici_cikti', function(data) {
-            console.log(data.kullanici + ' cikti');
-        });
-
-        // ============================================================
-        // Klavye kisayollari
-        // ============================================================
-        document.addEventListener('keydown', function(e) {
-            // ESC ile emoji panelini kapat
-            if (e.key === 'Escape') {
-                emojiPanel.style.display = 'none';
-            }
-            // Ctrl+Shift+N ile yeni sohbet
-            if (e.ctrlKey && e.shiftKey && e.key === 'N') {
-                e.preventDefault();
-                yeniSohbet();
-            }
+        socket.on('connect_error', function(err) {
+            console.log('Hata:', err.message);
         });
     </script>
 </body>

@@ -3,97 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Makarna AI - Admin Panel</title>
+    <title>Makarna AI - Admin</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍝</text></svg>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
 </head>
 <body class="admin-body">
     <div class="admin-container">
-        <!-- Sol Sidebar -->
-        <div class="admin-sidebar" id="admin-sidebar">
+        <div class="admin-sidebar">
             <div class="admin-sidebar-baslik">
-                <span class="admin-logo">🍝</span>
-                <span class="sidebar-text">Admin Panel</span>
-                <button id="admin-sidebar-kapat" class="sidebar-kapat-btn">✕</button>
+                <span>🍝</span>
+                <span>Admin</span>
             </div>
 
-            <!-- Bot Kontrol -->
             <div class="admin-kontrol">
                 <button id="bot-durum-btn" class="bot-durum-btn aktif">
-                    BOT DURUMU: AKTIF (OTOMATIK)
+                    BOT: AKTIF
                 </button>
-                <div class="bot-hizi-kontrol">
-                    <label>Cevap Hizi:</label>
-                    <input type="range" id="bot-hizi" min="0.5" max="5" step="0.5" value="1">
-                    <span id="bot-hizi-deger">1.0s</span>
-                </div>
             </div>
 
-            <!-- Arama -->
-            <div class="admin-arama">
-                <input type="text" id="admin-arama" class="admin-input" placeholder="Mesaj ara...">
-            </div>
-
-            <!-- Global Mesaj -->
             <div class="admin-global">
                 <h3>Global Duyuru</h3>
                 <div class="admin-global-input">
-                    <input type="text" id="global-mesaj-input" class="admin-input" placeholder="Tum kullanicilara gonder..." maxlength="500">
+                    <input type="text" id="global-mesaj-input" class="admin-input" placeholder="Tum kullanicilara...">
                     <button id="global-gonder-btn" class="admin-gonder-btn global">Gonder</button>
                 </div>
             </div>
 
-            <!-- Aktif Odalar -->
             <div class="admin-odalar">
                 <h3>Aktif Odalar (<span id="toplam-oda">0</span>)</h3>
                 <div id="oda-listesi" class="oda-listesi">
-                    <div class="oda-yok">Henuz oda yok...</div>
+                    <div class="oda-yok">Henuz oda yok</div>
                 </div>
-            </div>
-
-            <!-- Admin Alt -->
-            <div class="admin-alt">
-                <div class="admin-bilgi">
-                    <span class="admin-ikon">👑</span>
-                    <span class="sidebar-text">Admin</span>
-                </div>
-                <button id="admin-tema-btn" class="tema-btn">🌙</button>
             </div>
         </div>
 
-        <!-- Sag Chat Alani -->
         <div class="admin-chat-alani">
             <div class="admin-chat-baslik">
-                <button id="admin-sidebar-ac" class="sidebar-ac-btn">☰</button>
-                <span id="admin-chat-baslik">Bir oda secin</span>
-                <div class="admin-chat-baslik-sag">
-                    <span id="admin-chat-durum" class="admin-durum">-</span>
-                    <span id="secili-kullanici" class="secili-kullanici"></span>
-                </div>
+                <span id="admin-chat-baslik">Oda Sec</span>
+                <span id="admin-chat-durum"></span>
             </div>
 
             <div id="admin-mesaj-alani" class="admin-mesaj-alani">
                 <div class="admin-hosgeldin">
                     <div class="admin-hosgeldin-emoji">🔧</div>
-                    <h2>Admin Paneline Hos Geldin</h2>
-                    <p>Soldaki menuden bir oda sec veya global duyuru gonder.</p>
-                    <div class="admin-ozellikler">
-                        <div class="admin-ozellik"><span>🟢</span><span>Bot Aktif: Otomatik cevap verir</span></div>
-                        <div class="admin-ozellik"><span>🔴</span><span>Bot Kapali: Sen cevap verirsin</span></div>
-                        <div class="admin-ozellik"><span>📢</span><span>Global Mesaj: Tum odalara gider</span></div>
-                        <div class="admin-ozellik"><span>🔍</span><span>Mesaj Arama: Soldaki arama cubugu</span></div>
-                        <div class="admin-ozellik"><span>⚡</span><span>Bot Hizi: Ayarlanabilir gecikme</span></div>
-                    </div>
+                    <h2>Admin Panel</h2>
+                    <p>Sol taraftan oda sec veya duyuru gonder</p>
                 </div>
             </div>
 
             <div id="admin-mesaj-giris" class="admin-mesaj-giris" style="display:none;">
                 <div class="admin-mesaj-uyari" id="admin-uyari" style="display:none;">
-                    Bot aktifken mesaj gonderemezsin! Once botu kapat.
+                    Bot aktifken mesaj gonderemezsin!
                 </div>
                 <div class="admin-mesaj-input-kutu">
-                    <input type="text" id="admin-mesaj-input" class="admin-mesaj-input" placeholder="Makarna AI olarak yaz..." maxlength="500">
+                    <input type="text" id="admin-mesaj-input" class="admin-mesaj-input" placeholder="Makarna AI olarak yaz...">
                     <button id="admin-gonder-btn" class="admin-gonder-btn">Gonder</button>
                 </div>
             </div>
@@ -104,120 +68,75 @@
 
     <script>
         var socket = io();
-
         var botAktif = true;
         var seciliOda = null;
         var odaMesajlari = {};
-        var adminTema = localStorage.getItem('makarna-admin-tema') || 'karanlik';
-        var aramaMetni = '';
 
-        // DOM
-        var botDurumBtn = document.getElementById('bot-durum-btn');
-        var botHiziInput = document.getElementById('bot-hizi');
-        var botHiziDeger = document.getElementById('bot-hizi-deger');
-        var globalMesajInput = document.getElementById('global-mesaj-input');
-        var globalGonderBtn = document.getElementById('global-gonder-btn');
-        var odaListesi = document.getElementById('oda-listesi');
-        var adminMesajAlani = document.getElementById('admin-mesaj-alani');
-        var adminMesajGiris = document.getElementById('admin-mesaj-giris');
-        var adminMesajInput = document.getElementById('admin-mesaj-input');
-        var adminGonderBtn = document.getElementById('admin-gonder-btn');
-        var adminChatBaslik = document.getElementById('admin-chat-baslik');
-        var adminChatDurum = document.getElementById('admin-chat-durum');
-        var adminUyari = document.getElementById('admin-uyari');
-        var bildirimler = document.getElementById('bildirimler');
-        var toplamOda = document.getElementById('toplam-oda');
-        var adminSidebar = document.getElementById('admin-sidebar');
-        var adminSidebarAc = document.getElementById('admin-sidebar-ac');
-        var adminSidebarKapat = document.getElementById('admin-sidebar-kapat');
-        var adminTemaBtn = document.getElementById('admin-tema-btn');
-        var adminArama = document.getElementById('admin-arama');
-        var seciliKullaniciSpan = document.getElementById('secili-kullanici');
-
+        // Admin odaya katil
         socket.emit('join_admin');
 
-        // Sidebar toggle
-        adminSidebarAc.addEventListener('click', function() { adminSidebar.classList.add('acik'); });
-        adminSidebarKapat.addEventListener('click', function() { adminSidebar.classList.remove('acik'); });
-
-        // Tema
-        function adminTemayiUygula() {
-            document.body.setAttribute('data-tema', adminTema);
-            adminTemaBtn.textContent = adminTema === 'karanlik' ? '☀️' : '🌙';
-            localStorage.setItem('makarna-admin-tema', adminTema);
-        }
-        adminTemayiUygula();
-        adminTemaBtn.addEventListener('click', function() {
-            adminTema = adminTema === 'karanlik' ? 'aydinlik' : 'karanlik';
-            adminTemayiUygula();
-        });
-
         // Bot durum
-        botDurumBtn.addEventListener('click', function() {
+        document.getElementById('bot-durum-btn').onclick = function() {
             botAktif = !botAktif;
             socket.emit('bot_durum_degistir', { aktif: botAktif });
+            var btn = document.getElementById('bot-durum-btn');
             if (botAktif) {
-                botDurumBtn.textContent = 'BOT DURUMU: AKTIF (OTOMATIK)';
-                botDurumBtn.className = 'bot-durum-btn aktif';
+                btn.textContent = 'BOT: AKTIF';
+                btn.className = 'bot-durum-btn aktif';
             } else {
-                botDurumBtn.textContent = 'BOT DURUMU: KAPALI (MANUEL TROL)';
-                botDurumBtn.className = 'bot-durum-btn kapali';
+                btn.textContent = 'BOT: KAPALI';
+                btn.className = 'bot-durum-btn kapali';
             }
-        });
-
-        // Bot hizi
-        botHiziInput.addEventListener('input', function() {
-            var hizi = parseFloat(this.value);
-            botHiziDeger.textContent = hizi.toFixed(1) + 's';
-            socket.emit('bot_hizi_degistir', { hizi: hizi });
-        });
+        };
 
         // Global mesaj
-        globalGonderBtn.addEventListener('click', globalMesajGonder);
-        globalMesajInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') globalMesajGonder();
-        });
-
-        function globalMesajGonder() {
-            var mesaj = globalMesajInput.value.trim();
+        document.getElementById('global-gonder-btn').onclick = function() {
+            var input = document.getElementById('global-mesaj-input');
+            var mesaj = input.value.trim();
             if (!mesaj) return;
             socket.emit('global_mesaj', { mesaj: mesaj });
-            globalMesajInput.value = '';
-            bildirimGoster('Global mesaj gonderildi!', 'global');
-        }
+            input.value = '';
+            bildirimGoster('Global mesaj gonderildi!');
+        };
+
+        document.getElementById('global-mesaj-input').onkeypress = function(e) {
+            if (e.key === 'Enter') document.getElementById('global-gonder-btn').click();
+        };
 
         // Admin mesaj
-        adminGonderBtn.addEventListener('click', adminMesajGonder);
-        adminMesajInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') adminMesajGonder();
-        });
-
-        function adminMesajGonder() {
+        document.getElementById('admin-gonder-btn').onclick = function() {
             if (botAktif) {
-                adminUyari.style.display = 'block';
-                setTimeout(function() { adminUyari.style.display = 'none'; }, 3000);
+                document.getElementById('admin-uyari').style.display = 'block';
+                setTimeout(function() { document.getElementById('admin-uyari').style.display = 'none'; }, 3000);
                 return;
             }
             if (!seciliOda) {
-                bildirimGoster('Once bir oda sec!', 'hata');
+                bildirimGoster('Oda sec!');
                 return;
             }
-            var mesaj = adminMesajInput.value.trim();
+            var input = document.getElementById('admin-mesaj-input');
+            var mesaj = input.value.trim();
             if (!mesaj) return;
             socket.emit('admin_mesaj_gonder', { room_id: seciliOda, mesaj: mesaj });
-            adminMesajInput.value = '';
-        }
+            input.value = '';
+        };
 
-        // Yeni sohbet bildirimi
+        document.getElementById('admin-mesaj-input').onkeypress = function(e) {
+            if (e.key === 'Enter') document.getElementById('admin-gonder-btn').click();
+        };
+
+        // Yeni sohbet
         socket.on('yeni_sohbet_bildirimi', function(data) {
-            bildirimGoster(data.kullanici + ' yeni sohbet basladi (' + data.room_id + ')', 'uyari');
-            odaGuncelle(data.room_id, data.kullanici, data.renk);
+            bildirimGoster(data.kullanici + ' yeni sohbet basladi');
+            odaEkle(data.room_id, data.kullanici);
         });
 
-        function odaGuncelle(room_id, kullanici, renk) {
+        function odaEkle(room_id, kullanici) {
             if (odaMesajlari[room_id]) return;
             odaMesajlari[room_id] = [];
-            odaListesi.innerHTML = '';
+
+            var liste = document.getElementById('oda-listesi');
+            liste.innerHTML = '';
 
             var keys = Object.keys(odaMesajlari);
             for (var i = 0; i < keys.length; i++) {
@@ -225,23 +144,14 @@
                 var div = document.createElement('div');
                 div.className = 'oda-item' + (rid === seciliOda ? ' aktif' : '');
                 div.setAttribute('data-room-id', rid);
-
-                var kAdi = kullanici || 'Bilinmeyen';
-                var rnk = renk || '#f5a623';
-
-                div.innerHTML = '<div class="oda-ikon" style="background:' + rnk + '">💬</div>' +
-                    '<div class="oda-bilgi">' +
-                    '<div class="oda-ad">' + kAdi + '</div>' +
-                    '<div class="oda-id">' + rid + '</div>' +
-                    '</div>';
-
-                div.addEventListener('click', (function(id) {
+                div.textContent = rid;
+                div.onclick = (function(id) {
                     return function() { odaSec(id); };
-                })(rid));
-                odaListesi.appendChild(div);
+                })(rid);
+                liste.appendChild(div);
             }
 
-            toplamOda.textContent = keys.length;
+            document.getElementById('toplam-oda').textContent = keys.length;
         }
 
         function odaSec(room_id) {
@@ -256,142 +166,70 @@
                 }
             }
 
-            adminMesajAlani.innerHTML = '';
-            adminMesajGiris.style.display = 'block';
+            document.getElementById('admin-mesaj-alani').innerHTML = '';
+            document.getElementById('admin-mesaj-giris').style.display = 'block';
+            document.getElementById('admin-chat-baslik').textContent = 'Oda: ' + room_id;
 
             var mesajlar = odaMesajlari[room_id] || [];
-            if (mesajlar.length > 0) {
-                for (var j = 0; j < mesajlar.length; j++) {
-                    if (aramaMetni === '' || mesajlar[j].mesaj.toLowerCase().indexOf(aramaMetni.toLowerCase()) !== -1) {
-                        adminMesajEkle(mesajlar[j]);
-                    }
-                }
-                adminChatBaslik.textContent = 'Oda: ' + room_id;
-                adminChatDurum.textContent = mesajlar.length + ' mesaj';
-                seciliKullaniciSpan.textContent = mesajlar[0] ? mesajlar[0].kullanici : '';
-            } else {
-                adminChatBaslik.textContent = 'Oda: ' + room_id;
-                adminChatDurum.textContent = 'Yeni';
-                seciliKullaniciSpan.textContent = '';
+            for (var j = 0; j < mesajlar.length; j++) {
+                adminMesajEkle(mesajlar[j]);
             }
-
-            adminSidebar.classList.remove('acik');
         }
 
         socket.on('admin_mesaj_geldi', function(data) {
             if (!odaMesajlari[data.room_id]) {
-                odaGuncelle(data.room_id, data.kullanici, data.renk);
+                odaEkle(data.room_id, data.kullanici);
             }
             odaMesajlari[data.room_id].push(data);
 
             if (data.room_id === seciliOda) {
-                if (aramaMetni === '' || data.mesaj.toLowerCase().indexOf(aramaMetni.toLowerCase()) !== -1) {
-                    adminMesajEkle(data);
-                }
-                var toplamMesaj = odaMesajlari[data.room_id].length;
-                adminChatDurum.textContent = toplamMesaj + ' mesaj';
+                adminMesajEkle(data);
             }
         });
 
         function adminMesajEkle(data) {
+            var alan = document.getElementById('admin-mesaj-alani');
             var div = document.createElement('div');
-            var botMesaji = data.gonderen === 'makarna_ai';
-            div.className = 'admin-mesaj ' + (botMesaji ? 'bot' : 'kullanici');
+            var bot = data.gonderen === 'makarna_ai';
+            div.className = 'admin-mesaj ' + (bot ? 'bot' : 'kullanici');
 
-            var avatar = botMesaji ? '🍝' : data.kullanici.charAt(0).toUpperCase();
-            var renk = data.renk || (botMesaji ? '#e74c3c' : '#f5a623');
+            var avatar = bot ? '🍝' : data.kullanici.charAt(0).toUpperCase();
 
-            div.innerHTML = '<div class="admin-mesaj-avatar" style="background:' + renk + '">' + avatar + '</div>' +
+            div.innerHTML = '<div class="admin-mesaj-avatar">' + avatar + '</div>' +
                 '<div class="admin-mesaj-icerik">' +
                 '<div class="admin-mesaj-baslik">' +
-                '<span class="admin-mesaj-sahip" style="color:' + renk + '">' + data.kullanici + '</span>' +
+                '<span class="admin-mesaj-sahip">' + data.kullanici + '</span>' +
                 '<span class="admin-mesaj-saat">' + data.saat + '</span>' +
                 '</div>' +
-                '<div class="admin-mesaj-metin">' + escapeHtml(data.mesaj) + '</div>' +
+                '<div class="admin-mesaj-metin">' + data.mesaj + '</div>' +
                 '</div>';
 
-            adminMesajAlani.appendChild(div);
-            adminMesajAlani.scrollTop = adminMesajAlani.scrollHeight;
+            alan.appendChild(div);
+            alan.scrollTop = alan.scrollHeight;
         }
-
-        function escapeHtml(str) {
-            var div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        // Arama
-        adminArama.addEventListener('input', function() {
-            aramaMetni = this.value.trim();
-            if (seciliOda) {
-                adminMesajAlani.innerHTML = '';
-                var mesajlar = odaMesajlari[seciliOda] || [];
-                for (var j = 0; j < mesajlar.length; j++) {
-                    if (aramaMetni === '' || mesajlar[j].mesaj.toLowerCase().indexOf(aramaMetni.toLowerCase()) !== -1) {
-                        adminMesajEkle(mesajlar[j]);
-                    }
-                }
-            }
-        });
-
-        socket.on('admin_uyari', function(data) {
-            bildirimGoster(data.mesaj, 'hata');
-        });
 
         socket.on('bot_durum_guncelle', function(data) {
             botAktif = data.aktif;
-            if (botAktif) {
-                botDurumBtn.textContent = 'BOT DURUMU: AKTIF (OTOMATIK)';
-                botDurumBtn.className = 'bot-durum-btn aktif';
-            } else {
-                botDurumBtn.textContent = 'BOT DURUMU: KAPALI (MANUEL TROL)';
-                botDurumBtn.className = 'bot-durum-btn kapali';
-            }
         });
 
         socket.on('admin_baglandi', function(data) {
             var odalar = data.aktif_odalar || {};
             var keys = Object.keys(odalar);
             for (var i = 0; i < keys.length; i++) {
-                var rid = keys[i];
-                odaGuncelle(rid, odalar[rid].kullanici, odalar[rid].renk);
+                odaEkle(keys[i], odalar[keys[i]].kullanici);
             }
         });
 
-        socket.on('oda_silindi', function(data) {
-            if (odaMesajlari[data.room_id]) {
-                delete odaMesajlari[data.room_id];
-                odaListesi.innerHTML = '';
-                var keys = Object.keys(odaMesajlari);
-                for (var i = 0; i < keys.length; i++) {
-                    var rid = keys[i];
-                    var div = document.createElement('div');
-                    div.className = 'oda-item' + (rid === seciliOda ? ' aktif' : '');
-                    div.setAttribute('data-room-id', rid);
-                    div.innerHTML = '<div class="oda-ikon">💬</div><div class="oda-bilgi"><div class="oda-ad">Kullanici</div><div class="oda-id">' + rid + '</div></div>';
-                    div.addEventListener('click', (function(id) {
-                        return function() { odaSec(id); };
-                    })(rid));
-                    odaListesi.appendChild(div);
-                }
-                toplamOda.textContent = keys.length;
-            }
-        });
-
-        function bildirimGoster(mesaj, tur) {
-            tur = tur || 'info';
+        function bildirimGoster(mesaj) {
             var div = document.createElement('div');
-            div.className = 'bildirim ' + tur;
-            div.innerHTML = '<span class="bildirim-metin">' + mesaj + '</span>' +
-                '<button class="bildirim-kapat" onclick="this.parentElement.remove()">X</button>';
-            bildirimler.appendChild(div);
-            setTimeout(function() {
-                if (div.parentNode) div.remove();
-            }, 5000);
+            div.className = 'bildirim info';
+            div.innerHTML = '<span>' + mesaj + '</span><button onclick="this.parentElement.remove()">X</button>';
+            document.getElementById('bildirimler').appendChild(div);
+            setTimeout(function() { if (div.parentNode) div.remove(); }, 5000);
         }
 
         socket.on('kullanici_cikti', function(data) {
-            bildirimGoster(data.kullanici + ' cikti (' + data.room_id + ')', 'info');
+            bildirimGoster(data.kullanici + ' cikti');
         });
     </script>
 </body>
