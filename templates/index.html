@@ -9,7 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
 </head>
 <body>
-    <!-- Giris Ekrani -->
     <div id="giris-ekrani" class="giris-ekrani">
         <div class="giris-kutu">
             <div class="giris-logo">🍝</div>
@@ -17,10 +16,10 @@
             <p class="giris-aciklama">Krema'nin sahte yapay zekasi</p>
             <input type="text" id="kullanici-adi" class="giris-input" placeholder="Adin ne?" maxlength="20">
             <button id="giris-btn" class="giris-btn">Gir 🍝</button>
+            <div id="baglanti-durum" style="margin-top:12px;font-size:12px;color:#666"></div>
         </div>
     </div>
 
-    <!-- Chat Ekrani -->
     <div id="chat-ekrani" class="chat-ekrani" style="display:none;">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-baslik">
@@ -38,7 +37,7 @@
         <div class="chat-alani">
             <div class="chat-baslik">
                 <span id="chat-baslik-metin">Sohbet Sec</span>
-                <span id="chat-durum">🟢</span>
+                <span id="chat-durum">🔴 Bagli degil</span>
             </div>
 
             <div id="mesaj-alani" class="mesaj-alani">
@@ -59,10 +58,48 @@
     </div>
 
     <script>
-        var socket = io();
+        var socket = io({
+            reconnection: true,
+            reconnectionAttempts: 10,
+            reconnectionDelay: 1000,
+            timeout: 20000
+        });
         var kullaniciAdi = '';
         var aktifOda = null;
         var sohbetler = {};
+
+        // Baglanti durumu
+        var baglantiDurum = document.getElementById('baglanti-durum');
+        var chatDurum = document.getElementById('chat-durum');
+
+        socket.on('connect', function() {
+            console.log('Baglandi!');
+            chatDurum.textContent = '🟢 Cevrimici';
+            chatDurum.style.color = '#28a745';
+            if (baglantiDurum) baglantiDurum.textContent = '';
+        });
+
+        socket.on('disconnect', function() {
+            console.log('Kesildi!');
+            chatDurum.textContent = '🔴 Baglanti kesildi';
+            chatDurum.style.color = '#dc3545';
+        });
+
+        socket.on('reconnect', function() {
+            console.log('Yeniden baglandi!');
+            chatDurum.textContent = '🟢 Yeniden baglandi';
+            chatDurum.style.color = '#28a745';
+        });
+
+        socket.on('reconnect_attempt', function(attempt) {
+            console.log('Yeniden baglanmaya calisiyor:', attempt);
+            chatDurum.textContent = '🟡 Baglaniyor... (' + attempt + ')';
+            chatDurum.style.color = '#ffc107';
+        });
+
+        socket.on('reconnect_error', function(err) {
+            console.log('Yeniden baglanma hatasi:', err.message);
+        });
 
         // Giris
         document.getElementById('giris-btn').onclick = function() {
@@ -89,6 +126,10 @@
         };
 
         function yeniSohbet() {
+            if (!socket.connected) {
+                alert('Sunucuya baglanamiyor, lutfen bekleyin...');
+                return;
+            }
             console.log('Yeni sohbet isteniyor...');
             socket.emit('yeni_sohbet', { kullanici: kullaniciAdi });
         }
@@ -102,7 +143,6 @@
                 mesajlar: []
             };
 
-            // Listeyi guncelle
             var liste = document.getElementById('sohbet-listesi');
             liste.innerHTML = '';
             var keys = Object.keys(sohbetler);
@@ -129,7 +169,7 @@
             document.getElementById('mesaj-alani').innerHTML = '';
             document.getElementById('mesaj-giris').style.display = 'block';
 
-            if (sohbet.mesajlar.length > 0) {
+            if (sohbet && sohbet.mesajlar.length > 0) {
                 for (var j = 0; j < sohbet.mesajlar.length; j++) {
                     mesajEkle(sohbet.mesajlar[j], false);
                 }
@@ -152,6 +192,11 @@
             var mesaj = input.value.trim();
             if (!mesaj || !aktifOda) return;
 
+            if (!socket.connected) {
+                alert('Baglanti yok!');
+                return;
+            }
+
             socket.emit('kullanici_mesaj', {
                 room_id: aktifOda,
                 kullanici: kullaniciAdi,
@@ -172,8 +217,6 @@
 
         function mesajEkle(data, scroll) {
             var alan = document.getElementById('mesaj-alani');
-
-            // Hosgeldin mesajini kaldir
             var hosgeldin = alan.querySelector('.hosgeldin-mesaji');
             if (hosgeldin) hosgeldin.remove();
 
@@ -198,19 +241,6 @@
                 alan.scrollTop = alan.scrollHeight;
             }
         }
-
-        // Baglanti
-        socket.on('connect', function() {
-            console.log('Baglandi!');
-        });
-
-        socket.on('disconnect', function() {
-            console.log('Kesildi!');
-        });
-
-        socket.on('connect_error', function(err) {
-            console.log('Hata:', err.message);
-        });
     </script>
 </body>
 </html>
