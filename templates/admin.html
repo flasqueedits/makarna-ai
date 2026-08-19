@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍝 Makarna AI - Admin Panel</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍝</text></svg>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+</head>
+<body class="admin-body">
+    <!-- Admin Ana Panel -->
+    <div class="admin-container">
+        <!-- Sol Sidebar - Odalar & Kontroller -->
+        <div class="admin-sidebar">
+            <div class="admin-sidebar-baslik">
+                <span class="admin-logo">🍝</span>
+                <span>Admin Panel</span>
+            </div>
+
+            <!-- Bot Kontrol -->
+            <div class="admin-kontrol">
+                <button id="bot-durum-btn" class="bot-durum-btn aktif">
+                    BOT DURUMU: AKTİF (OTOMATİK)
+                </button>
+            </div>
+
+            <!-- Global Mesaj -->
+            <div class="admin-global">
+                <h3>📢 Global Duyuru</h3>
+                <div class="admin-global-input">
+                    <input type="text" id="global-mesaj-input" class="admin-input" placeholder="Tüm kullanıcılara gönder..." maxlength="500">
+                    <button id="global-gonder-btn" class="admin-gonder-btn global">Gönder</button>
+                </div>
+            </div>
+
+            <!-- Aktif Odalar -->
+            <div class="admin-odalar">
+                <h3>📋 Aktif Odalar</h3>
+                <div id="oda-listesi" class="oda-listesi">
+                    <div class="oda-yok">Henüz oda yok...</div>
+                </div>
+            </div>
+
+            <!-- Admin Bilgi -->
+            <div class="admin-alt">
+                <div class="admin-bilgi">
+                    <span class="admin-ikon">👑</span>
+                    <span>Admin</span>
+                </div>
+                <div class="admin-istatistik">
+                    <span id="toplam-oda">0</span> oda aktif
+                </div>
+            </div>
+        </div>
+
+        <!-- Sag Chat Alani -->
+        <div class="admin-chat-alani">
+            <!-- Chat Basligi -->
+            <div class="admin-chat-baslik">
+                <span id="admin-chat-baslik">Bir oda seçin</span>
+                <span id="admin-chat-durum" class="admin-durum">-</span>
+            </div>
+
+            <!-- Mesajlar -->
+            <div id="admin-mesaj-alani" class="admin-mesaj-alani">
+                <div class="admin-hosgeldin">
+                    <div class="admin-hosgeldin-emoji">🔧</div>
+                    <h2>Admin Paneline Hoş Geldin</h2>
+                    <p>Soldaki menüden bir oda seç veya global duyuru gönder.</p>
+                    <div class="admin-ozellikler">
+                        <div class="admin-ozellik">
+                            <span>🟢</span>
+                            <span>Bot Aktif: Otomatik cevap verir</span>
+                        </div>
+                        <div class="admin-ozellik">
+                            <span>🔴</span>
+                            <span>Bot Kapalı: Sen cevap verirsin (trolle!)</span>
+                        </div>
+                        <div class="admin-ozellik">
+                            <span>📢</span>
+                            <span>Global Mesaj: Tüm odalara gider</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mesaj Giris Alani -->
+            <div id="admin-mesaj-giris" class="admin-mesaj-giris" style="display:none;">
+                <div class="admin-mesaj-uyari" id="admin-uyari" style="display:none;">
+                    ⚠️ Bot aktifken mesaj gönderemezsin! Önce botu kapat.
+                </div>
+                <div class="admin-mesaj-input-kutu">
+                    <input type="text" id="admin-mesaj-input" class="admin-mesaj-input" placeholder="Makarna AI olarak yaz..." maxlength="500">
+                    <button id="admin-gonder-btn" class="admin-gonder-btn">Gönder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bildirimler -->
+    <div id="bildirimler" class="bildirimler"></div>
+
+    <script>
+        // ============================================================
+        // SocketIO Baglantisi
+        // ============================================================
+        const socket = io();
+
+        // ============================================================
+        // Degiskenler
+        // ============================================================
+        let botAktif = true;
+        let seciliOda = null;
+        let odaMesajlari = {}; // {room_id: [mesajlar]}
+
+        // ============================================================
+        // DOM Elementleri
+        // ============================================================
+        const botDurumBtn = document.getElementById('bot-durum-btn');
+        const globalMesajInput = document.getElementById('global-mesaj-input');
+        const globalGonderBtn = document.getElementById('global-gonder-btn');
+        const odaListesi = document.getElementById('oda-listesi');
+        const adminMesajAlani = document.getElementById('admin-mesaj-alani');
+        const adminMesajGiris = document.getElementById('admin-mesaj-giris');
+        const adminMesajInput = document.getElementById('admin-mesaj-input');
+        const adminGonderBtn = document.getElementById('admin-gonder-btn');
+        const adminChatBaslik = document.getElementById('admin-chat-baslik');
+        const adminChatDurum = document.getElementById('admin-chat-durum');
+        const adminUyari = document.getElementById('admin-uyari');
+        const bildirimler = document.getElementById('bildirimler');
+        const toplamOda = document.getElementById('toplam-oda');
+
+        // ============================================================
+        // Admin Odasina Katil
+        // ============================================================
+        socket.emit('join_admin');
+
+        // ============================================================
+        // Bot Durum Degistir
+        // ============================================================
+        botDurumBtn.addEventListener('click', () => {
+            botAktif = !botAktif;
+            socket.emit('bot_durum_degistir', { aktif: botAktif });
+
+            if (botAktif) {
+                botDurumBtn.textContent = 'BOT DURUMU: AKTİF (OTOMATİK)';
+                botDurumBtn.className = 'bot-durum-btn aktif';
+            } else {
+                botDurumBtn.textContent = 'BOT DURUMU: KAPALI (MANUEL TROL)';
+                botDurumBtn.className = 'bot-durum-btn kapali';
+            }
+        });
+
+        // ============================================================
+        // Global Mesaj Gonder
+        // ============================================================
+        globalGonderBtn.addEventListener('click', globalMesajGonder);
+        globalMesajInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') globalMesajGonder();
+        });
+
+        function globalMesajGonder() {
+            const mesaj = globalMesajInput.value.trim();
+            if (!mesaj) return;
+
+            socket.emit('global_mesaj', { mesaj: mesaj });
+            globalMesajInput.value = '';
+
+            bildirimGoster('📢 Global mesaj gönderildi!', 'global');
+        }
+
+        // ============================================================
+        // Admin Mesaj Gonder
+        // ============================================================
+        adminGonderBtn.addEventListener('click', adminMesajGonder);
+        adminMesajInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') adminMesajGonder();
+        });
+
+        function adminMesajGonder() {
+            if (botAktif) {
+                adminUyari.style.display = 'block';
+                setTimeout(() => { adminUyari.style.display = 'none'; }, 3000);
+                return;
+            }
+
+            if (!seciliOda) {
+                bildirimGoster('⚠️ Önce bir oda seç!', 'hata');
+                return;
+            }
+
+            const mesaj = adminMesajInput.value.trim();
+            if (!mesaj) return;
+
+            socket.emit('admin_mesaj_gonder', {
+                room_id: seciliOda,
+                mesaj: mesaj
+            });
+
+            adminMesajInput.value = '';
+        }
+
+        // ============================================================
+        // Yeni Sohbet Bildirimi
+        // ============================================================
+        socket.on('yeni_sohbet_bildirimi', (data) => {
+            const { room_id, kullanici, saat } = data;
+
+            // Bildirim goster
+            bildirimGoster(`🚨 ${kullanici} yeni bir sohbete başladı (${room_id})`, 'uyari');
+
+            // Odalari guncelle
+            odaGuncelle(room_id, kullanici);
+
+            // Sesli bildirim (tarayici izniyle)
+            try {
+                const audio = new AudioContext();
+                const osc = audio.createOscillator();
+                const gain = audio.createGain();
+                osc.connect(gain);
+                gain.connect(audio.destination);
+                osc.frequency.value = 800;
+                osc.type = 'sine';
+                gain.gain.value = 0.1;
+                osc.start();
+                setTimeout(() => { osc.stop(); }, 200);
+            } catch(e) {}
+        });
+
+        // ============================================================
+        // Oda Guncelle
+        // ============================================================
+        function odaGuncelle(room_id, kullanici) {
+            // Zaten varsa guncelleme yapma
+            if (odaMesajlari[room_id]) return;
+
+            odaMesajlari[room_id] = [];
+
+            odaListesi.innerHTML = '';
+
+            for (const [rid, mesajlar] of Object.entries(odaMesajlari)) {
+                const div = document.createElement('div');
+                div.className = `oda-item ${rid === seciliOda ? 'aktif' : ''}`;
+                div.dataset.roomId = rid;
+
+                const kullaniciAdi = mesajlar.length > 0
+                    ? mesajlar[0].kullanici || 'Bilinmeyen'
+                    : 'Yeni';
+
+                div.innerHTML = `
+                    <div class="oda-ikon">💬</div>
+                    <div class="oda-bilgi">
+                        <div class="oda-ad">${kullaniciAdi}</div>
+                        <div class="oda-id">${rid}</div>
+                    </div>
+                `;
+
+                div.addEventListener('click', () => odaSec(rid));
+                odaListesi.appendChild(div);
+            }
+
+            toplamOda.textContent = Object.keys(odaMesajlari).length;
+        }
+
+        // ============================================================
+        // Oda Sec
+        // ============================================================
+        function odaSec(room_id) {
+            seciliOda = room_id;
+
+            // Active state guncelle
+            document.querySelectorAll('.oda-item').forEach(el => {
+                el.classList.toggle('aktif', el.dataset.roomId === room_id);
+            });
+
+            // Mesaj alani
+            adminMesajAlani.innerHTML = '';
+            adminMesajGiris.style.display = 'block';
+
+            const mesajlar = odaMesajlari[room_id] || [];
+            if (mesajlar.length > 0) {
+                mesajlar.forEach(mesaj => adminMesajEkle(mesaj));
+                adminChatBaslik.textContent = `Oda: ${room_id}`;
+                adminChatDurum.textContent = 'Aktif';
+            } else {
+                adminChatBaslik.textContent = `Oda: ${room_id}`;
+                adminChatDurum.textContent = 'Yeni';
+            }
+        }
+
+        // ============================================================
+        // Admin Mesaj Geldi
+        // ============================================================
+        socket.on('admin_mesaj_geldi', (data) => {
+            const { room_id, gonderen, kullanici, mesaj, saat } = data;
+
+            // Oda yoksa olustur
+            if (!odaMesajlari[room_id]) {
+                odaGuncelle(room_id, kullanici);
+            }
+
+            // Mesaji ekle
+            odaMesajlari[room_id].push(data);
+
+            // Secili odadaysa ekrana da ekle
+            if (room_id === seciliOda) {
+                adminMesajEkle(data);
+            }
+        });
+
+        // ============================================================
+        // Admin Mesaj Ekle (DOM)
+        // ============================================================
+        function adminMesajEkle(data) {
+            const { gonderen, kullanici, mesaj, saat } = data;
+
+            const div = document.createElement('div');
+            const botMesaji = gonderen === 'makarna_ai';
+            div.className = `admin-mesaj ${botMesaji ? 'bot' : 'kullanici'}`;
+
+            const avatar = botMesaji ? '🍝' : kullanici.charAt(0).toUpperCase();
+
+            div.innerHTML = `
+                <div class="admin-mesaj-avatar">${avatar}</div>
+                <div class="admin-mesaj-icerik">
+                    <div class="admin-mesaj-baslik">
+                        <span class="admin-mesaj-sahip">${kullanici}</span>
+                        <span class="admin-mesaj-saat">${saat}</span>
+                    </div>
+                    <div class="admin-mesaj-metin">${mesaj}</div>
+                </div>
+            `;
+
+            adminMesajAlani.appendChild(div);
+            adminMesajAlani.scrollTop = adminMesajAlani.scrollHeight;
+        }
+
+        // ============================================================
+        // Admin Uyari
+        // ============================================================
+        socket.on('admin_uyari', (data) => {
+            bildirimGoster(`⚠️ ${data.mesaj}`, 'hata');
+        });
+
+        // ============================================================
+        // Admin Mesaj Gonderildi
+        // ============================================================
+        socket.on('admin_mesaj_gonderildi', (data) => {
+            console.log('Mesaj gönderildi:', data.room_id);
+        });
+
+        // ============================================================
+        // Global Gonderildi
+        // ============================================================
+        socket.on('global_gonderildi', (data) => {
+            console.log('Global mesaj gönderildi');
+        });
+
+        // ============================================================
+        // Bot Durum Guncelle
+        // ============================================================
+        socket.on('bot_durum_guncelle', (data) => {
+            botAktif = data.aktif;
+            if (botAktif) {
+                botDurumBtn.textContent = 'BOT DURUMU: AKTİF (OTOMATİK)';
+                botDurumBtn.className = 'bot-durum-btn aktif';
+            } else {
+                botDurumBtn.textContent = 'BOT DURUMU: KAPALI (MANUEL TROL)';
+                botDurumBtn.className = 'bot-durum-btn kapali';
+            }
+        });
+
+        // ============================================================
+        // Admin Baglandi
+        // ============================================================
+        socket.on('admin_baglandi', (data) => {
+            const odalar = data.aktif_odalar || {};
+            for (const [rid, oda] of Object.entries(odalar)) {
+                odaGuncelle(rid, oda.kullanici);
+            }
+        });
+
+        // ============================================================
+        // Bildirim Goster
+        // ============================================================
+        function bildirimGoster(mesaj, tur = 'info') {
+            const div = document.createElement('div');
+            div.className = `bildirim ${tur}`;
+            div.innerHTML = `
+                <span class="bildirim-metin">${mesaj}</span>
+                <button class="bildirim-kapat" onclick="this.parentElement.remove()">✕</button>
+            `;
+            bildirimler.appendChild(div);
+
+            // 5 saniye sonra otomatik sil
+            setTimeout(() => {
+                if (div.parentNode) div.remove();
+            }, 5000);
+        }
+
+        // ============================================================
+        // Kullanici Cikti
+        // ============================================================
+        socket.on('kullanici_cikti', (data) => {
+            bildirimGoster(`👋 ${data.kullanici} çıktı (${data.room_id})`, 'info');
+        });
+    </script>
+</body>
+</html>

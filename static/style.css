@@ -1,0 +1,1042 @@
+/* ============================================
+   MAKARNA AI - Ortak Stil Dosyasi
+   Karanlık tema, makarna/İtalyan konsepti
+   ============================================ */
+
+/* ---- CSS Degiskenler ---- */
+:root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #121212;
+    --bg-tertiary: #1a1a1a;
+    --bg-card: #1e1e1e;
+    --bg-hover: #252525;
+    --bg-input: #2a2a2a;
+
+    --text-primary: #f0f0f0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #666;
+
+    --makarna: #f5a623;
+    --makarna-light: #ffc966;
+    --makarna-dark: #c78415;
+    --sos: #e74c3c;
+    --sos-light: #ff6b6b;
+
+    --admin-red: #dc3545;
+    --admin-red-dark: #a71d2a;
+    --admin-green: #28a745;
+
+    --border: #2a2a2a;
+    --border-light: #333;
+
+    --shadow: 0 4px 24px rgba(0,0,0,0.5);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-lg: 16px;
+
+    --transition: all 0.2s ease;
+}
+
+/* ---- Reset & Temel ---- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ============================================
+   GIRIS EKRANI
+   ============================================ */
+.giris-ekrani {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: radial-gradient(ellipse at center, #1a1510 0%, #0a0a0a 70%);
+}
+
+.giris-kutu {
+    background: var(--bg-secondary);
+    padding: 48px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+    border: 1px solid var(--border);
+    animation: girisFadeIn 0.5s ease;
+}
+
+@keyframes girisFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.giris-logo {
+    font-size: 72px;
+    margin-bottom: 16px;
+    animation: makarnaDon 3s ease-in-out infinite;
+}
+
+@keyframes makarnaDon {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(10deg); }
+}
+
+.giris-baslik {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--makarna);
+    margin-bottom: 8px;
+}
+
+.giris-aciklama {
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.giris-input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 16px;
+    outline: none;
+    transition: var(--transition);
+    margin-bottom: 16px;
+}
+
+.giris-input:focus {
+    border-color: var(--makarna);
+    box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
+}
+
+.giris-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--makarna), var(--makarna-dark));
+    color: #000;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.giris-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 166, 35, 0.3);
+}
+
+.giris-btn:active {
+    transform: translateY(0);
+}
+
+.giris-uyari {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 10px;
+    background: rgba(231, 76, 60, 0.1);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+/* ============================================
+   CHAT EKRANI - ANA YAPI
+   ============================================ */
+.chat-ekrani {
+    display: flex;
+    height: 100vh;
+    background: var(--bg-primary);
+}
+
+/* ---- Sidebar ---- */
+.sidebar {
+    width: 280px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.sidebar-baslik {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--makarna);
+}
+
+.sidebar-logo {
+    font-size: 24px;
+}
+
+.yeni-sohbet-btn {
+    margin: 12px;
+    padding: 12px;
+    border: 2px dashed var(--border-light);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.yeni-sohbet-btn:hover {
+    border-color: var(--makarna);
+    color: var(--makarna);
+    background: rgba(245, 166, 35, 0.05);
+}
+
+.sohbet-listesi {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.sohbet-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 4px;
+}
+
+.sohbet-item:hover {
+    background: var(--bg-hover);
+}
+
+.sohbet-item.aktif {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+}
+
+.sohbet-emoji {
+    font-size: 18px;
+}
+
+.sohbet-adi {
+    font-size: 14px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-alt {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.kullanici-bilgisi {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--makarna);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+#kullanici-goster {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* ---- Chat Alani ---- */
+.chat-alani {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.chat-baslik {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-secondary);
+}
+
+.chat-baslik span:first-child {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.chat-durum {
+    font-size: 12px;
+    color: var(--admin-green);
+}
+
+.mesaj-alani {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.hosgeldin-mesaji {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.hosgeldin-emoji {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.hosgeldin-mesaji h2 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-size: 24px;
+}
+
+.hosgeldin-mesaji p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.uyari-kutucuk {
+    margin-top: 16px;
+    padding: 10px 16px;
+    background: rgba(231, 76, 60, 0.1);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    color: var(--sos-light);
+    font-size: 12px;
+}
+
+/* ---- Mesajlar ---- */
+.mesaj {
+    display: flex;
+    gap: 12px;
+    max-width: 80%;
+    animation: mesajFadeIn 0.3s ease;
+}
+
+@keyframes mesajFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.mesaj.benim {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.mesaj-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--makarna);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.mesaj.bot .mesaj-avatar {
+    background: linear-gradient(135deg, var(--makarna), var(--sos));
+}
+
+.mesaj-icerik {
+    background: var(--bg-card);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    min-width: 0;
+}
+
+.mesaj.benim .mesaj-icerik {
+    background: rgba(245, 166, 35, 0.1);
+    border-color: rgba(245, 166, 35, 0.2);
+}
+
+.mesaj-baslik {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 12px;
+}
+
+.mesaj-sahip {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--makarna);
+}
+
+.mesaj-saat {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.mesaj-metin {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.mesaj.global-mesaj .mesaj-icerik {
+    background: rgba(231, 76, 60, 0.15);
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+/* ---- Mesaj Giris ---- */
+.mesaj-giris {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-secondary);
+}
+
+.mesaj-input-kutu {
+    display: flex;
+    gap: 12px;
+    background: var(--bg-input);
+    border-radius: var(--radius);
+    padding: 4px;
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.mesaj-input-kutu:focus-within {
+    border-color: var(--makarna);
+}
+
+.mesaj-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+}
+
+.mesaj-input::placeholder {
+    color: var(--text-muted);
+}
+
+.gonder-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--makarna);
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.gonder-btn:hover {
+    background: var(--makarna-light);
+}
+
+/* ============================================
+   ADMIN PANEL
+   ============================================ */
+.admin-body {
+    overflow: hidden;
+}
+
+.admin-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* ---- Admin Sidebar ---- */
+.admin-sidebar {
+    width: 320px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.admin-sidebar-baslik {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--admin-red);
+}
+
+.admin-logo {
+    font-size: 24px;
+}
+
+/* ---- Bot Kontrol ---- */
+.admin-kontrol {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.bot-durum-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bot-durum-btn.aktif {
+    background: linear-gradient(135deg, var(--admin-green), #218838);
+    color: white;
+}
+
+.bot-durum-btn.kapali {
+    background: linear-gradient(135deg, var(--admin-red), var(--admin-red-dark));
+    color: white;
+}
+
+.bot-durum-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ---- Global Mesaj ---- */
+.admin-global {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-global h3 {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.admin-global-input {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: var(--transition);
+}
+
+.admin-input:focus {
+    border-color: var(--admin-red);
+}
+
+.admin-gonder-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.admin-gonder-btn.global {
+    background: var(--admin-red);
+    color: white;
+}
+
+.admin-gonder-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* ---- Odalar ---- */
+.admin-odalar {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.admin-odalar h3 {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.oda-listesi {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.oda-yok {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 24px;
+    font-size: 13px;
+}
+
+.oda-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+    background: var(--bg-tertiary);
+}
+
+.oda-item:hover {
+    border-color: var(--border-light);
+}
+
+.oda-item.aktif {
+    border-color: var(--admin-red);
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.oda-ikon {
+    font-size: 20px;
+}
+
+.oda-bilgi {
+    min-width: 0;
+}
+
+.oda-ad {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.oda-id {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+/* ---- Admin Alt ---- */
+.admin-alt {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-bilgi {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.admin-ikon {
+    font-size: 18px;
+}
+
+.admin-istatistik {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ---- Admin Chat Alani ---- */
+.admin-chat-alani {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.admin-chat-baslik {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-secondary);
+}
+
+.admin-chat-baslik span:first-child {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.admin-durum {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.admin-mesaj-alani {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ---- Admin Hosgeldin ---- */
+.admin-hosgeldin {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.admin-hosgeldin-emoji {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.admin-hosgeldin h2 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-size: 24px;
+}
+
+.admin-hosgeldin p {
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.admin-ozellikler {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.admin-ozellik {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    text-align: left;
+}
+
+/* ---- Admin Mesajlar ---- */
+.admin-mesaj {
+    display: flex;
+    gap: 12px;
+    max-width: 85%;
+    animation: mesajFadeIn 0.3s ease;
+}
+
+.admin-mesaj-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.admin-mesaj.kullanici .admin-mesaj-avatar {
+    background: var(--makarna);
+    color: #000;
+}
+
+.admin-mesaj.bot .admin-mesaj-avatar {
+    background: linear-gradient(135deg, var(--makarna), var(--sos));
+}
+
+.admin-mesaj-icerik {
+    background: var(--bg-card);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    min-width: 0;
+}
+
+.admin-mesaj.kullanici .admin-mesaj-icerik {
+    border-color: rgba(245, 166, 35, 0.3);
+}
+
+.admin-mesaj.bot .admin-mesaj-icerik {
+    border-color: rgba(220, 53, 69, 0.3);
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.admin-mesaj-baslik {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 12px;
+}
+
+.admin-mesaj-sahip {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--makarna);
+}
+
+.admin-mesaj.bot .admin-mesaj-sahip {
+    color: var(--admin-red);
+}
+
+.admin-mesaj-saat {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.admin-mesaj-metin {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+/* ---- Admin Mesaj Giris ---- */
+.admin-mesaj-giris {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-secondary);
+}
+
+.admin-mesaj-uyari {
+    padding: 10px 16px;
+    margin-bottom: 10px;
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: var(--radius-sm);
+    color: var(--sos-light);
+    font-size: 13px;
+    text-align: center;
+}
+
+.admin-mesaj-input-kutu {
+    display: flex;
+    gap: 12px;
+    background: var(--bg-input);
+    border-radius: var(--radius);
+    padding: 4px;
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.admin-mesaj-input-kutu:focus-within {
+    border-color: var(--admin-red);
+}
+
+.admin-mesaj-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+}
+
+.admin-mesaj-input::placeholder {
+    color: var(--text-muted);
+}
+
+.admin-gonder-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--admin-red);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.admin-gonder-btn:hover {
+    background: var(--admin-red-dark);
+}
+
+/* ============================================
+   BILDIRIMLER
+   ============================================ */
+.bildirimler {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bildirim {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    font-size: 14px;
+    min-width: 300px;
+    max-width: 450px;
+    animation: bildirimSlideIn 0.3s ease;
+    border: 1px solid;
+}
+
+@keyframes bildirimSlideIn {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.bildirim.uyari {
+    background: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.4);
+    color: var(--sos-light);
+}
+
+.bildirim.global {
+    background: rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.4);
+    color: #5dade2;
+}
+
+.bildirim.hata {
+    background: rgba(231, 76, 60, 0.15);
+    border-color: rgba(231, 76, 60, 0.4);
+    color: var(--sos-light);
+}
+
+.bildirim.info {
+    background: rgba(46, 204, 113, 0.15);
+    border-color: rgba(46, 204, 113, 0.4);
+    color: #58d68d;
+}
+
+.bildirim-metin {
+    flex: 1;
+}
+
+.bildirim-kapat {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.7;
+    transition: var(--transition);
+    padding: 0 4px;
+}
+
+.bildirim-kapat:hover {
+    opacity: 1;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+    }
+
+    .sidebar-baslik span:last-child,
+    .sohbet-adi,
+    .yeni-sohbet-btn span:last-child,
+    .kullanici-bilgisi span:last-child {
+        display: none;
+    }
+
+    .sidebar-baslik {
+        justify-content: center;
+        padding: 16px;
+    }
+
+    .yeni-sohbet-btn {
+        margin: 8px;
+        padding: 12px;
+        font-size: 18px;
+    }
+
+    .admin-sidebar {
+        width: 240px;
+    }
+}

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: makarna-ai
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --worker-class eventlet -w 1 app:socketio
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MAKARNA_AI_KEY
+        sync: false
+      - key: MAKARNA_AI_PROVIDER
+        value: gemini
