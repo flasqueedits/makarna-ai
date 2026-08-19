@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍝 Makarna AI</title>
+    <title>Makarna AI</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍝</text></svg>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
@@ -14,10 +14,10 @@
         <div class="giris-kutu">
             <div class="giris-logo">🍝</div>
             <h1 class="giris-baslik">Makarna AI</h1>
-            <p class="giris-aciklama">Krema'nın sahte yapay zekası ile tanışmaya hazır mısın?</p>
-            <input type="text" id="kullanici-adi" class="giris-input" placeholder="Kullanıcı adın ne, evladı?" maxlength="20" autofocus>
-            <button id="giris-btn" class="giris-btn">Makarna Zekasına Gir 🍝</button>
-            <div class="giris-uyari">⚠️ Uyarı: Yapay zeka değildir. Makarna zekasıdır. Fark edeceksin.</div>
+            <p class="giris-aciklama">Krema'nin sahte yapay zekasi ile tanismaya hazir misin?</p>
+            <input type="text" id="kullanici-adi" class="giris-input" placeholder="Kullanici adin ne, evladi?" maxlength="20" autofocus>
+            <button id="giris-btn" class="giris-btn">Makarna Zekasina Gir 🍝</button>
+            <div class="giris-uyari">Uyari: Yapay zeka degildir. Makarna zekasidir. Fark edeceksin.</div>
         </div>
     </div>
 
@@ -30,11 +30,9 @@
                 <span>Makarna AI</span>
             </div>
             <button id="yeni-sohbet-btn" class="yeni-sohbet-btn">
-                <span>＋</span> Yeni Sohbet
+                <span>+</span> Yeni Sohbet
             </button>
-            <div id="sohbet-listesi" class="sohbet-listesi">
-                <!-- Sohbet sekmeleri buraya eklenecek -->
-            </div>
+            <div id="sohbet-listesi" class="sohbet-listesi"></div>
             <div class="sidebar-alt">
                 <div class="kullanici-bilgisi">
                     <span id="kullanici-avatar" class="avatar">👤</span>
@@ -45,67 +43,52 @@
 
         <!-- Sag Chat Alani -->
         <div class="chat-alani">
-            <!-- Chat Basligi -->
             <div class="chat-baslik">
-                <span id="chat-baslik-metin">Yeni bir sohbet başlat</span>
-                <span id="chat-durum" class="chat-durum">🟢 Çevrimiçi</span>
+                <span id="chat-baslik-metin">Yeni bir sohbet baslat</span>
+                <span id="chat-durum" class="chat-durum">🟢 Cevrimici</span>
             </div>
 
-            <!-- Mesajlar -->
             <div id="mesaj-alani" class="mesaj-alani">
                 <div class="hosgeldin-mesaji">
                     <div class="hosgeldin-emoji">🍝</div>
-                    <h2>Hoş geldin!</h2>
-                    <p>Makarna AI'ya hoş geldin. Burada Krema'nın sahte yapay zekasıyla sohbet edebilirsin.</p>
-                    <p class="uyari-kutucuk">⚠️ Bu gerçek bir yapay zeka değildir. Makarna haşlama zekasıdır.</p>
+                    <h2>Hos geldin!</h2>
+                    <p>Makarna AI'ya hos geldin. Burada Krema'nin sahte yapay zekasiyla sohbet edebilirsin.</p>
+                    <p class="uyari-kutucuk">Bu gercek bir yapay zeka degildir. Makarna haslama zekasidir.</p>
                 </div>
             </div>
 
-            <!-- Mesaj Giris Alani -->
             <div id="mesaj-giris" class="mesaj-giris" style="display:none;">
                 <div class="mesaj-input-kutu">
-                    <input type="text" id="mesaj-input" class="mesaj-input" placeholder="Bir şey yaz... makarna gibi 😏" maxlength="500">
-                    <button id="gonder-btn" class="gonder-btn">Gönder</button>
+                    <input type="text" id="mesaj-input" class="mesaj-input" placeholder="Bir sey yaz... makarna gibi" maxlength="500">
+                    <button id="gonder-btn" class="gonder-btn">Gonder</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ============================================================
-        // SocketIO Baglantisi
-        // ============================================================
-        const socket = io();
+        var socket = io();
 
-        // ============================================================
-        // Degiskenler
-        // ============================================================
-        let kullaniciAdi = '';
-        let aktifOda = null;
-        let sohbetler = {}; // {room_id: {adi: str, mesajlar: []}}
+        var kullaniciAdi = '';
+        var aktifOda = null;
+        var sohbetler = {};
 
-        // ============================================================
-        // DOM Elementleri
-        // ============================================================
-        const girisEkrani = document.getElementById('giris-ekrani');
-        const chatEkrani = document.getElementById('chat-ekrani');
-        const kullaniciAdiInput = document.getElementById('kullanici-adi');
-        const girisBtn = document.getElementById('giris-btn');
-        const yeniSohbetBtn = document.getElementById('yeni-sohbet-btn');
-        const sohbetListesi = document.getElementById('sohbet-listesi');
-        const mesajAlani = document.getElementById('mesaj-alani');
-        const mesajGiris = document.getElementById('mesaj-giris');
-        const mesajInput = document.getElementById('mesaj-input');
-        const gonderBtn = document.getElementById('gonder-btn');
-        const chatBaslikMetin = document.getElementById('chat-baslik-metin');
-        const kullaniciGoster = document.getElementById('kullanici-goster');
-        const kullaniciAvatar = document.getElementById('kullanici-avatar');
+        var girisEkrani = document.getElementById('giris-ekrani');
+        var chatEkrani = document.getElementById('chat-ekrani');
+        var kullaniciAdiInput = document.getElementById('kullanici-adi');
+        var girisBtn = document.getElementById('giris-btn');
+        var yeniSohbetBtn = document.getElementById('yeni-sohbet-btn');
+        var sohbetListesi = document.getElementById('sohbet-listesi');
+        var mesajAlani = document.getElementById('mesaj-alani');
+        var mesajGiris = document.getElementById('mesaj-giris');
+        var mesajInput = document.getElementById('mesaj-input');
+        var gonderBtn = document.getElementById('gonder-btn');
+        var chatBaslikMetin = document.getElementById('chat-baslik-metin');
+        var kullaniciGoster = document.getElementById('kullanici-goster');
+        var kullaniciAvatar = document.getElementById('kullanici-avatar');
 
-        // ============================================================
-        // Giris Islemi
-        // ============================================================
         girisBtn.addEventListener('click', girisYap);
-        kullaniciAdiInput.addEventListener('keypress', (e) => {
+        kullaniciAdiInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') girisYap();
         });
 
@@ -113,102 +96,83 @@
             kullaniciAdi = kullaniciAdiInput.value.trim();
             if (!kullaniciAdi) {
                 kullaniciAdiInput.style.borderColor = '#ff4757';
-                kullaniciAdiInput.placeholder = 'Bir isim gir be kardeşim!';
+                kullaniciAdiInput.placeholder = 'Bir isim gir be kardesim!';
                 return;
             }
-
             girisEkrani.style.display = 'none';
             chatEkrani.style.display = 'flex';
             kullaniciGoster.textContent = kullaniciAdi;
             kullaniciAvatar.textContent = kullaniciAdi.charAt(0).toUpperCase();
-
-            // Ilk sohbeti otomatik olustur
             yeniSohbet();
         }
 
-        // ============================================================
-        // Yeni Sohbet
-        // ============================================================
         yeniSohbetBtn.addEventListener('click', yeniSohbet);
 
         function yeniSohbet() {
             socket.emit('yeni_sohbet', { kullanici: kullaniciAdi });
         }
 
-        // ============================================================
-        // Sohbet Olusturuldu
-        // ============================================================
-        socket.on('sohbet_olusturuldu', (data) => {
-            const { room_id, kullanici } = data;
+        socket.on('sohbet_olusturuldu', function(data) {
+            var room_id = data.room_id;
 
             sohbetler[room_id] = {
-                adi: `Sohbet ${Object.keys(sohbetler).length + 1}`,
+                adi: 'Sohbet ' + (Object.keys(sohbetler).length + 1),
                 mesajlar: []
             };
 
-            // Sidebar'a ekle
             sohbetListesi.innerHTML = '';
-            for (const [rid, sohbet] of Object.entries(sohbetler)) {
-                const div = document.createElement('div');
-                div.className = `sohbet-item ${rid === room_id ? 'aktif' : ''}`;
-                div.dataset.roomId = rid;
-                div.innerHTML = `
-                    <span class="sohbet-emoji">💬</span>
-                    <span class="sohbet-adi">${sohbet.adi}</span>
-                `;
-                div.addEventListener('click', () => odaSec(rid));
+            var keys = Object.keys(sohbetler);
+            for (var i = 0; i < keys.length; i++) {
+                var rid = keys[i];
+                var sohbet = sohbetler[rid];
+                var div = document.createElement('div');
+                div.className = 'sohbet-item' + (rid === room_id ? ' aktif' : '');
+                div.setAttribute('data-room-id', rid);
+                div.innerHTML = '<span class="sohbet-emoji">💬</span><span class="sohbet-adi">' + sohbet.adi + '</span>';
+                div.addEventListener('click', (function(id) {
+                    return function() { odaSec(id); };
+                })(rid));
                 sohbetListesi.appendChild(div);
             }
 
-            // Yeni odaya gec
             odaSec(room_id);
         });
 
-        // ============================================================
-        // Oda Sec
-        // ============================================================
         function odaSec(room_id) {
             aktifOda = room_id;
-            const sohbet = sohbetler[room_id];
+            var sohbet = sohbetler[room_id];
 
-            // Active state guncelle
-            document.querySelectorAll('.sohbet-item').forEach(el => {
-                el.classList.toggle('aktif', el.dataset.roomId === room_id);
-            });
+            var items = document.querySelectorAll('.sohbet-item');
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].getAttribute('data-room-id') === room_id) {
+                    items[i].classList.add('aktif');
+                } else {
+                    items[i].classList.remove('aktif');
+                }
+            }
 
-            // Chat basligini guncelle
             chatBaslikMetin.textContent = sohbet ? sohbet.adi : 'Sohbet';
-
-            // Mesaj alanini temizle ve gecmise yukle
             mesajAlani.innerHTML = '';
 
             if (sohbet && sohbet.mesajlar.length > 0) {
-                sohbet.mesajlar.forEach(mesaj => mesajEkle(mesaj, false));
+                for (var j = 0; j < sohbet.mesajlar.length; j++) {
+                    mesajEkle(sohbet.mesajlar[j], false);
+                }
             } else {
-                mesajAlani.innerHTML = `
-                    <div class="hosgeldin-mesaji">
-                        <div class="hosgeldin-emoji">🍝</div>
-                        <h2>Hoş geldin!</h2>
-                        <p>Makarna AI ile sohbete başla. makarna gibi haşla, cevabı al!</p>
-                    </div>
-                `;
+                mesajAlani.innerHTML = '<div class="hosgeldin-mesaji"><div class="hosgeldin-emoji">🍝</div><h2>Hos geldin!</h2><p>Makarna AI ile sohbete basla.</p></div>';
             }
 
-            // Mesaj girisini goster
             mesajGiris.style.display = 'block';
             mesajInput.focus();
         }
 
-        // ============================================================
-        // Mesaj Gonder
-        // ============================================================
         gonderBtn.addEventListener('click', mesajGonder);
-        mesajInput.addEventListener('keypress', (e) => {
+        mesajInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') mesajGonder();
         });
 
         function mesajGonder() {
-            const mesaj = mesajInput.value.trim();
+            var mesaj = mesajInput.value.trim();
             if (!mesaj || !aktifOda) return;
 
             socket.emit('kullanici_mesaj', {
@@ -220,87 +184,48 @@
             mesajInput.value = '';
         }
 
-        // ============================================================
-        // Mesaj Geldi
-        // ============================================================
-        socket.on('mesaj_geldi', (data) => {
-            const { gonderen, kullanici, mesaj, saat, global: isGlobal } = data;
-
-            // Gecmise ekle
-            if (sohbetler[aktifOda]) {
+        socket.on('mesaj_geldi', function(data) {
+            if (aktifOda && sohbetler[aktifOda]) {
                 sohbetler[aktifOda].mesajlar.push(data);
             }
-
-            // Ekrana ekle
             mesajEkle(data, true);
-
-            // Global mesaj bildirimi
-            if (isGlobal) {
-                odaAktiflikGuncelle();
-            }
         });
 
-        // ============================================================
-        // Mesaj Ekle (DOM)
-        // ============================================================
-        function mesajEkle(data, scroll = true) {
-            const { gonderen, kullanici, mesaj, saat, global: isGlobal } = data;
-
-            // Hosgeldin mesajini kaldir
-            const hosgeldin = mesajAlani.querySelector('.hosgeldin-mesaji');
+        function mesajEkle(data, scroll) {
+            var hosgeldin = mesajAlani.querySelector('.hosgeldin-mesaji');
             if (hosgeldin) hosgeldin.remove();
 
-            const div = document.createElement('div');
-            const benimMesajim = gonderen === 'kullanici';
+            var div = document.createElement('div');
+            var benimMesajim = data.gonderen === 'kullanici';
 
-            div.className = `mesaj ${benimMesajim ? 'benim' : 'bot'} ${isGlobal ? 'global-mesaj' : ''}`;
+            div.className = 'mesaj ' + (benimMesajim ? 'benim' : 'bot');
 
-            const avatarIkon = benimMesajim
+            var avatarIkon = benimMesajim
                 ? kullaniciAdi.charAt(0).toUpperCase()
                 : '🍝';
 
-            div.innerHTML = `
-                <div class="mesaj-avatar">${avatarIkon}</div>
-                <div class="mesaj-icerik">
-                    <div class="mesaj-baslik">
-                        <span class="mesaj-sahip">${kullanici}</span>
-                        <span class="mesaj-saat">${saat}</span>
-                    </div>
-                    <div class="mesaj-metin">${mesaj}</div>
-                </div>
-            `;
+            div.innerHTML = '<div class="mesaj-avatar">' + avatarIkon + '</div>' +
+                '<div class="mesaj-icerik">' +
+                '<div class="mesaj-baslik">' +
+                '<span class="mesaj-sahip">' + data.kullanici + '</span>' +
+                '<span class="mesaj-saat">' + data.saat + '</span>' +
+                '</div>' +
+                '<div class="mesaj-metin">' + data.mesaj + '</div>' +
+                '</div>';
 
             mesajAlani.appendChild(div);
 
-            if (scroll) {
+            if (scroll !== false) {
                 mesajAlani.scrollTop = mesajAlani.scrollHeight;
             }
         }
 
-        // ============================================================
-        // Global Mesaj Guncelleme
-        // ============================================================
-        function odaAktiflikGuncelle() {
-            // Global mesajlar tum odalara gider, burada bildirim goster
-            if (!sohbetler[aktifOda]) return;
-        }
-
-        // ============================================================
-        // Baglanti Durumu
-        // ============================================================
-        socket.on('connect', () => {
-            console.log('Makarna AI\'ya bağlanıldı! 🍝');
+        socket.on('connect', function() {
+            console.log('Makarna AI\'ya baglandi!');
         });
 
-        socket.on('disconnect', () => {
-            console.log('Bağlantı kesildi!');
-        });
-
-        // ============================================================
-        // Kullanici Cikti
-        // ============================================================
-        socket.on('kullanici_cikti', (data) => {
-            console.log(`${data.kullanici} çıktı`);
+        socket.on('disconnect', function() {
+            console.log('Baglanti kesildi!');
         });
     </script>
 </body>
